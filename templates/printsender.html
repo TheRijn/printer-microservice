@@ -1,30 +1,36 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Print</title>
 </head>
 <body>
-<input type="file" id="printFile">
-<button type="button" id="printButton">Print</button>
+    <input type="file" id="printFile">
+    <button type="button" id="printButton">Print</button>
 
-<script src="https://code.jquery.com/jquery-3.4.1.min.js"
-        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-<script>
-    document.querySelector('#printButton').onclick = function () {
-        console.log("hi!");
-        let formData = new FormData();
-        formData.append('file', $('#printFile')[0].files[0]);
+    <script>
+        document.querySelector('#printButton').onclick = function () {
+            let fileField = document.querySelector("#printFile");
 
-        let request = new XMLHttpRequest();
-        request.open('POST', 'http://localhost:5000/print');
-        request.send(formData);
+            let formData = new FormData();
+            formData.append('file', fileField.files[0]);
 
-        request.onload =function () {
-            var data = JSON.parse(this.response);
-            console.log(data)
-        }
-    };
-</script>
+            fetch("{{ url_for('print_job') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log("Success: ", result);
+                if (result == true) {
+                    alert("Succes!")
+                    fileField.value = '';
+                }
+            })
+            .catch(error => {
+                console.log("Error:", error)
+            });
+        };
+    </script>
 </body>
 </html>
